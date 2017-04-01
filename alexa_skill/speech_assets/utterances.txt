@@ -1,0 +1,3 @@
+OccupancyIntent What is the capacity of the {ROOM}
+OccupancyIntent How many people can fit in {ROOM}
+OccupancyIntent What all rooms are available
