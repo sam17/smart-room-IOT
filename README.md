@@ -2,5 +2,5 @@
 IOT based smart office
 
 
-##Alexa Skills  
+## Alexa Skills  
 -Occupancy Intent
