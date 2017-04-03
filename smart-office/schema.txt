@@ -1,0 +1,8 @@
+rooms:
+id, room, capacity
+
+meetings:
+id, room_id, organizer, invitees, start_time, end_time
+
+attendees:
+id, meeting_id

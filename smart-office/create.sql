@@ -1,0 +1,1 @@
+create table rooms(id int auto_increment, room varchar(255), capacity int, primary key(id));
