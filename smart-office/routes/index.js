@@ -309,14 +309,10 @@ router.get('/', function(req, res, next) {
 	    	console.log('Error loading client secret file: ' + err);
 	    	return;
 		}
+		console.log("Hello");
 		// Authorize a client with the loaded credentials, then call the
 		// Google Calendar API.
-		authorize(JSON.parse(content), timer);
 		//res.sendStatus(200);
-	});
-
-	setInterval(function(){
-		sendNotification(new Date());
 	});
 	res.render('index', { title: 'Express' });
 });
