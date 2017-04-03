@@ -1,6 +1,5 @@
 var express = require('express');
 var router = express.Router();
-var connection = require('../connection');
 
 var fs = require('fs');
 var readline = require('readline');
@@ -304,11 +303,7 @@ function listEvents(startTime, endTime, res, auth) {
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-	connection.connect();
-	connection.query('SELECT 1+1 as solution', function (err, rows, fields) {
-  		if (err) throw err
-  		console.log('The solution is: ', rows[0])
-	});
+
 	fs.readFile('client_secret.json', function processClientSecrets(err, content) {
 		if (err) {
 	    	console.log('Error loading client secret file: ' + err);
@@ -323,8 +318,6 @@ router.get('/', function(req, res, next) {
 	setInterval(function(){
 		sendNotification(new Date());
 	});
-
-	connection.end();
 	res.render('index', { title: 'Express' });
 });
 
