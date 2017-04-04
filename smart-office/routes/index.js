@@ -407,7 +407,7 @@ router.get('/rfid', function(req, res, next) {
 
 router.get('/car', function(req, res, next) {
   var status = req["query"]["status"];
-  if (status === "0") {
+  if (status === "0" && globalState !== "y") {
     globalState = "g";
     globalRfid = "";
   } else if (status === "1" && globalRfid.length == 0) {
