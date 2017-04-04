@@ -13,6 +13,8 @@ globalNoti = "nothing";
 globalAttendees = [];
 globalStartTime = "";
 globalBookedRoom = "";
+globalState = "g";
+globalRfid = "";
 Array.prototype.diff = function(a) {
     return this.filter(function(i) {return a.indexOf(i) < 0;});
 };
@@ -391,4 +393,28 @@ router.get('/poll', function(req, res, next){
   res.send(JSON.stringify({'tosend': toSend, 'attendees': globalAttendees, 'starttime': globalStartTime, 'room': globalBookedRoom}));
 });
 
+
+router.get('/rfid', function(req, res, next) {
+  var rfid = res['query']['rfid'];
+  if (rfid.length > 0)
+    globalRfid = rfid;
+  res.sendStatus(200);
+});
+
+router.get('/car', function(req, res, next) {
+  var status = res['query']['status'];
+  if (status === "0") {
+    globalState = "g";
+  } else if (status === "1" && globalRfid.length == 0) {
+    globalState = "r";
+  } else if (status === "1" && globalRfid.length > 0) {
+    globalState = "b";
+  }
+  res.send(globalState);
+});
+
+router.get('sety', function(req, res, next) {
+  globalState = "y";
+  res.send(globalState);
+});
 module.exports = router;
