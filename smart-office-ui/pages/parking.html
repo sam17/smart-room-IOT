@@ -36,6 +36,15 @@
     .panel-danger .panel-heading {
         animation: blink 1s infinite; /* IE 10+, Fx 29+ */
     }
+    .panel-success>.panel-heading {
+
+        color: white;
+        background-color: #3b8c19;
+    }
+    .panel-warning>.panel-heading {
+        color: black;
+        background-color: #efca0c;
+    }
 
     @-webkit-keyframes blink {
         0%, 49% {
@@ -200,7 +209,9 @@
 
         setInterval(function(){
             $.get("http://ec2-52-221-204-189.ap-southeast-1.compute.amazonaws.com:3000/color", function(data){
-                var color = data;
+                data = JSON.parse(data);
+                var color = data["color"];
+                var name = data["name"];
                 $("#slot2").removeClass("panel-primary");
                 $("#slot2").removeClass("panel-warning");
                 $("#slot2").removeClass("panel-success");
@@ -213,13 +224,18 @@
                     $("#slot2 .panel-body p").text("Reserved");
                 } else if (color === "b") {
                     $("#slot2").addClass("panel-primary");
-                    $("#slot2 .panel-body p").text("Parked");
+                    if (name.length>0){
+                        $("#slot2 .panel-body p").text("Parked by "+name);
+                    }
+                    else {
+                        $("#slot2 .panel-body p").text("Parked");
+                    }
                 } else if (color === "r") {
                     $("#slot2").addClass("panel-danger");
                     $("#slot2 .panel-body p").text("Error");
                 }
             });
-        },5000);
+        },1000);
     </script>
 
 </body>

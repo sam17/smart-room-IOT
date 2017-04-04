@@ -6,9 +6,11 @@ var readline = require('readline');
 var google = require('googleapis');
 var googleAuth = require('google-auth-library');
 var q = require('q');
+
 var delta = 1;
 var slackNoti = 3;
 var cancelNoti = 1;
+
 globalNoti = "nothing";
 globalAttendees = [];
 globalStartTime = "";
@@ -39,6 +41,11 @@ var rooms = {
 	}
 }
 
+var rfids = {
+  "925376117205": "Prerana",
+  "144255133122144": "Shubham",
+  "": ""
+};
 /**
  * Create an OAuth2 client with the given credentials, and then execute the
  * given callback function.
@@ -424,7 +431,7 @@ router.get('/sety', function(req, res, next) {
 });
 
 router.get('/color', function(req, res, next) {
-  res.send(globalState);
+  res.send({"color": globalState, "name": rfids[globalRfid]});
 });
 
 router.get('/getNeptuneStatus', function(req, res, next) {

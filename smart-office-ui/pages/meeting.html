@@ -341,7 +341,7 @@
     <!-- Custom Theme JavaScript -->
     <script src="../dist/js/sb-admin-2.js"></script>
     <script type="text/javascript">
-        $.get("http://localhost:3000/getNeptuneStatus", function(data){
+        $.get("http://ec2-52-221-204-189.ap-southeast-1.compute.amazonaws.com:3000/getNeptuneStatus", function(data){
             if (data) {
                 $("#neptune").text("Busy");
                 $("#number").text("1");
