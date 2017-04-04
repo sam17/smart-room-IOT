@@ -395,16 +395,17 @@ router.get('/poll', function(req, res, next){
 
 
 router.get('/rfid', function(req, res, next) {
-  var rfid = res['query']['rfid'];
+  var rfid = req["query"]["rfid"];
   if (rfid.length > 0)
     globalRfid = rfid;
   res.sendStatus(200);
 });
 
 router.get('/car', function(req, res, next) {
-  var status = res['query']['status'];
+  var status = req["query"]["status"];
   if (status === "0") {
     globalState = "g";
+    globalRfid = "";
   } else if (status === "1" && globalRfid.length == 0) {
     globalState = "r";
   } else if (status === "1" && globalRfid.length > 0) {
