@@ -7,16 +7,19 @@ var google = require('googleapis');
 var googleAuth = require('google-auth-library');
 var q = require('q');
 var delta = 1;
-var slackNoti = 1000;
-var cancelNoti = 2000;
-
+var slackNoti = 3;
+var cancelNoti = 1;
+globalNoti = "nothing";
+globalAttendees = [];
+globalStartTime = "";
+globalBookedRoom = "";
 Array.prototype.diff = function(a) {
     return this.filter(function(i) {return a.indexOf(i) < 0;});
 };
 
 var SCOPES = ["https://www.googleapis.com/auth/calendar", "https://www.googleapis.com/auth/admin.directory.resource.calendar"];
 var TOKEN_DIR = (process.env.HOME || process.env.HOMEPATH ||
-    process.env.USERPROFILE) + '/.credentials/';
+    process.env.UERPROFILE) + '/.credentials/';
 var TOKEN_PATH = TOKEN_DIR + 'calendar-nodejs-quickstart.json';
 
 var rooms = {
@@ -159,6 +162,8 @@ function createEvent(organizer, invitees, startTime, endTime, room, auth) {
 			},
 			"attendees": attendees
     	}
+	}, function(){
+		listEvent(auth);
 	});
 }
 
@@ -166,54 +171,6 @@ var options = {
   host: 'https://www.googleapis.com',
   path: '/admin/directory/v1/customer/my_customer/resources/calendars'
 };
-
-function sendNotification(currentTime, auth) {
-	var promises = [];
-	var timeStamp = new Date(currentTime.getTime() - 1000*delta);
-	var calendar = google.calendar('v3');
-	var timeMin = timeStamp.getFullYear()+"-"+(timeStamp.getMonth()+1)+"-"+timeStamp.getDate() + "T"+timeStamp.getHours() + ":" + timeStamp.getMinutes() + ":" +timeStamp.getSeconds();
-	timeStamp = new Date(timeStamp.getTime() + 1000);
-	var timeMax = timeStamp.getFullYear()+"-"+(timeStamp.getMonth()+1)+"-"+timeStamp.getDate() + "T"+timeStamp.getHours() + ":" + timeStamp.getMinutes() + ":" +timeStamp.getSeconds();
-	var startTimes = [];
-	var eventIds = [];
-	var bookedRooms = [];
-	calendar.events.list({
-	    auth: auth,
-	    calendarId: 'primary',
-	    timeMax: timeMax+"+05:30",
-	    timeMin: timeMin+"+05:30",
-	}, function(err, response) {
-		var events = response.items;
-
-		events.forEach(function(event, eventIdx) {
-			var defer = q.defer();
-			var eventId = event["id"];
-			calendar.events.get({
-	        	auth: auth,
-	        	calendarId: 'primary',
-	        	eventId: eventId
-	        }, function(err, response) {
-	        	startTimes.push(response["start"]["dateTime"]);
-	        	eventIds.push(eventId);
-
-	        	var attendees = response["attendees"];
-	        	for (var j=0; j<attendees.length; j++) {
-	        		if (attendees[j]["resource"]){
-	        			defer.resolve(true);
-	        			bookedRooms.push(attendees[j]["displayName"]);
-	        		}
-	        	}
-	        });
-	        promises.push(defer.promise);
-		});
-		q.all(promises, function(){
-			for (var j = 0; j< startTimes.length; j++) {
-				var seconds = (currentTime - new Date(startTime[j]))/1000;
-				console.log(seconds);
-			}
-		});
-	});
-}
 
 function listEvent(auth) {
 	var calendar = google.calendar('v3');
@@ -223,7 +180,7 @@ function listEvent(auth) {
 	    orderBy: 'updated'
 	}, function(err, response){
 		var events = response.items;
-		globalEventId = events[events.length - 1]["id"];
+		globalEventId = events[0]["id"];
 		calendar.events.get({
         	auth: auth,
         	calendarId: 'primary',
@@ -231,27 +188,28 @@ function listEvent(auth) {
         }, function(err, response) {
         	console.log(response["start"]);
         	globalStartTime = response["start"]["dateTime"];
+          globalAttendees = [];
         	var attendees = response["attendees"];
+
         	for (var j=0; j<attendees.length; j++) {
         		if (attendees[j]["resource"]){
         			globalBookedRoom = attendees[j]["displayName"];
         		}
+            else {
+              globalAttendees.push(attendees[j]["email"]);
+            }
         	}
-
-        	var timerId = setInterval(function(){
-        		var diff = (new Date() - new Date(globalStartTime))/1000;
-        		console.log(new Date(), globalStartTime);
-        		if (diff >= slackNoti && !rooms[globalBookedRoom]["occupied"]) {
-        			console.log("Slack");
-        		}
-        		if (diff >= cancelNoti && !rooms[globalBookedRoom]["occupied"]) {
-        			console.log("Cancel");
-        			rooms[globalBookedRoom]["occupied"] = true;
-        			clearInterval(timerId);
-        		}
-        	}, 100);
         });
 	});
+}
+
+function deleteEvent(globalEventId, auth) {
+	var calendar = google.calendar('v3');
+	calendar.events.delete({
+    	auth: auth,
+    	calendarId: 'primary',
+    	eventId: globalEventId
+    });
 }
 
 function listEvents(startTime, endTime, res, auth) {
@@ -317,6 +275,56 @@ router.get('/', function(req, res, next) {
 	res.render('index', { title: 'Express' });
 });
 
+router.get('/startMeeting', function (req, res, next) {
+  var timerId = setTimeout(function(){
+    /*var d = new Date();
+    var utc = d.getTime() - (d.getTimezoneOffset() * 60000);
+    var nd = new Date(utc);
+
+    var ist = new Date(globalStartTime);
+    var istDate = new Date(ist.getTime() - (ist.getTimezoneOffset() * 60000));
+    var diff = parseInt((nd - istDate)/1000);
+
+    console.log(nd, istDate, diff);
+    */
+    if (!rooms[globalBookedRoom]["occupied"]) {
+      globalNoti = "warn";
+    }
+  }, slackNoti);
+  res.sendStatus(200);
+});
+
+router.get('/cancelMeeting', function (req, res, next) {
+  var timerId = setTimeout(function(){
+    /*var d = new Date();
+    var utc = d.getTime() - (d.getTimezoneOffset() * 60000);
+    var nd = new Date(utc);
+
+    var ist = new Date(globalStartTime);
+    var istDate = new Date(ist.getTime() - (ist.getTimezoneOffset() * 60000));
+    var diff = parseInt((nd - istDate)/1000);
+
+    console.log(nd, istDate, diff);*/
+
+    if (!rooms[globalBookedRoom]["occupied"]) {
+      
+      fs.readFile('client_secret.json', function processClientSecrets(err, content) {
+        if (err) {
+            console.log('Error loading client secret file: ' + err);
+            return;
+        }
+        // Authorize a client with the loaded credentials, then call the
+        // Google Calendar API.
+        authorize(JSON.parse(content), deleteEvent, globalEventId);
+        globalNoti = "cancel";
+        clearInterval(timerId);
+        //authorize(JSON.parse(content), listEvent);
+        res.sendStatus(200);
+      });
+    }
+  }, cancelNoti);
+});
+
 router.get('/capacity', function(req, res, next) {
 	var room = req["query"]["room"];
 	console.log(rooms[String(room)]["capacity"]);
@@ -372,4 +380,15 @@ router.post('/listAvailableRooms', function(req, res, next) {
 		authorize(JSON.parse(content), listEvents, startTime, endTime, res);
 	});
 });
+
+router.get('/poll', function(req, res, next){
+  var toSend = globalNoti;
+  
+  if (globalNoti === "warn" || globalNoti === "cancel") {
+    globalNoti = "nothing";
+  }
+
+  res.send(JSON.stringify({'tosend': toSend, 'attendees': globalAttendees, 'starttime': globalStartTime, 'room': globalBookedRoom}));
+});
+
 module.exports = router;
