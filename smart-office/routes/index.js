@@ -29,7 +29,7 @@ var rooms = {
 		"email": "relaxitaxi.xyz_31353333383835313235@resource.calendar.google.com",
 		"id": "1533885125",
 		"capacity": "10",
-		"occupied": false
+		"occupied": true
 	},
 	"Saturn" : {
 		"email": "relaxitaxi.xyz_3337313539303735353735@resource.calendar.google.com",
@@ -425,6 +425,10 @@ router.get('/sety', function(req, res, next) {
 
 router.get('/color', function(req, res, next) {
   res.send(globalState);
+});
+
+router.get('/getNeptuneStatus', function(req, res, next) {
+  res.send(rooms["Neptune"]["occupied"]);
 });
 
 module.exports = router;
