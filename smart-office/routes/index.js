@@ -396,8 +396,12 @@ router.get('/poll', function(req, res, next){
 
 router.get('/rfid', function(req, res, next) {
   var rfid = req["query"]["rfid"];
-  if (rfid.length > 0)
+  if (rfid.length > 0) {
     globalRfid = rfid;
+    if (globalState === "r") {
+      globalState = "b";
+    }
+  }
   res.sendStatus(200);
 });
 
@@ -411,11 +415,16 @@ router.get('/car', function(req, res, next) {
   } else if (status === "1" && globalRfid.length > 0) {
     globalState = "b";
   }
+  res.sendStatus(200);
+});
+
+router.get('/sety', function(req, res, next) {
+  globalState = "y";
+  res.sendStatus(200);
+});
+
+router.get('/color', function(req, res, next) {
   res.send(globalState);
 });
 
-router.get('sety', function(req, res, next) {
-  globalState = "y";
-  res.send(globalState);
-});
 module.exports = router;
