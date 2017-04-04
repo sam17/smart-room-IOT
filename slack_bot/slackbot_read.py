@@ -6,7 +6,7 @@ from slackclient import SlackClient
 from nlpsystem import *
 
 # smartroom bot
-BOT_TOKEN = "xoxb-163800060087-7Q6YN9cy86DdKz2NHRfgSxjz"
+BOT_TOKEN = "xoxb-163800060087-RyUa3ClBgGFTFVfErd47NG9R"
 BOT_NAME = "smartroom"
 BOT_ID = ""
 

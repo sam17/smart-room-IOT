@@ -10,8 +10,9 @@ slackusers={}
 wit_client = Wit(access_token='NR62PZJK63ROIYYXBZ2OSUVVR76ZVIIQ')
 
 
-server_ipaddr = ""
-light_ipaddr = ""
+server_ipaddr = "http://ec2-52-221-204-189.ap-southeast-1.compute.amazonaws.com:3000"
+light_ipaddr = "192.168.43.213"
+#server_ipaddr = "http://10.91.1.158:3000"
 
 
 def init_slackusers(users):
@@ -46,7 +47,7 @@ def get_response(prev_response, text, userId):
 def light(text):
 	color = ''
 
-	intensity = {'dim': '#111111', 'bright': '#ffffff', 'medium': '#888888'}
+	intensity = {'dim': '#111111', 'bright': '#ffffff', 'medium': '#888888', 'disco': '#pppppp'}
 
 	words = re.findall(r"[\w']+", text.lower())
 	for w in words:
@@ -72,7 +73,10 @@ def light(text):
 
 
 	if color != '':
-		(r,g,b) = hex_to_rgb(color)
+		if color == '#pppppp':
+			(r,g,b) = (-1,-1,-1)
+		else:
+			(r,g,b) = hex_to_rgb(color)
 		requests.get("http://" + light_ipaddr + "/" + str(r) + "/" + str(g) + "/" + str(b) + "/")
 		return True
 
@@ -165,7 +169,7 @@ def book_room(prev_response, text, users, userId):
 			prev_response = ""
 			
 			# post request to server
-			resp = requests.post('http://' + server_ipaddr + '/bookRoom', json={"organizer": slackusers[userId[2:-1]]+"@relaxitaxi.xyz", "room": available_rooms, "invitees": ",".join([slackusers[u[2:-1]]+"@relaxitaxi.xyz" for u in users]), "startTime": date_from+"T"+time_from, "endTime": date_to+"T"+time_to})
+			resp = requests.post(server_ipaddr + '/bookRoom', json={"organizer": slackusers[userId[2:-1]]+"@relaxitaxi.xyz", "room": available_rooms, "invitees": ",".join([slackusers[u[2:-1]]+"@relaxitaxi.xyz" for u in users]), "startTime": date_from+"T"+time_from, "endTime": date_to+"T"+time_to})
 
 			return prev_response, response
 		
@@ -230,7 +234,7 @@ def get_dateTime(text):
 def get_available_rooms(rooms, date_from, time_from, date_to, time_to):
 	
 	#post request to server..
-	resp = requests.post('http://' + server_ipaddr + '/listAvailableRooms', json={"startTime": date_from+"T"+time_from, "endTime": date_to+"T"+time_to})
+	resp = requests.post(server_ipaddr + '/listAvailableRooms', json={"startTime": date_from+"T"+time_from, "endTime": date_to+"T"+time_to})
 	
 	available_rooms = json.loads(resp.text)
 
