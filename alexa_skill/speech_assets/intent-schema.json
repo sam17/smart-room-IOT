@@ -5,9 +5,42 @@
         {
           "name": "ROOM",
           "type": "LIST_OF_ROOM_VALS"
+        },
+        {
+          "name": "FROMTIME",
+          "type": "AMAZON.TIME"
+        },
+        {
+          "name": "TOTIME",
+          "type": "AMAZON.TIME"
+        },
+        {
+          "name": "TEAM",
+          "type": "LIST_OF_PEOPLE_VALS"
+        },
+        {
+          "name": "DATE",
+          "type": "AMAZON.DATE"
         }
       ],
-      "intent": "OccupancyIntent"
+      "intent": "BookingIntent"
+    },
+    {
+      "slots": [
+        {
+          "name": "FROMTIME",
+          "type": "AMAZON.TIME"
+        },
+        {
+          "name": "TOTIME",
+          "type": "AMAZON.TIME"
+        },
+        {
+          "name": "DATE",
+          "type": "AMAZON.DATE"
+        }
+      ],
+      "intent": "EmptyIntent"
     },
     {
       "intent": "AMAZON.HelpIntent"

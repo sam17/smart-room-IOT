@@ -1,3 +1,6 @@
-OccupancyIntent What is the capacity of the {ROOM}
-OccupancyIntent How many people can fit in {ROOM}
-OccupancyIntent What all rooms are available
+BookingIntent Book {ROOM} from {FROMTIME} to {TOTIME} for {TEAM} on {DATE}
+BookingIntent Book {ROOM} from {FROMTIME} to {TOTIME} for {TEAM} {DATE}
+EmptyIntent Which rooms are empty from {FROMTIME} to {TOTIME} {DATE}
+EmptyIntent Which rooms are empty from {FROMTIME} to {TOTIME} on {DATE}
+EmptyIntent Which rooms are available from {FROMTIME} to {TOTIME} on {DATE}
+EmptyIntent Which rooms are available from {FROMTIME} to {TOTIME} {DATE}
